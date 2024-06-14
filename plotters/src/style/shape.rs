@@ -1,5 +1,5 @@
 use super::color::{Color, RGBAColor};
-use plotters_backend::{BackendColor, BackendStyle};
+use plotters_backend::{BackendColor, BackendStyle, StrokeStyle};
 
 /// Style for any shape
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -10,6 +10,8 @@ pub struct ShapeStyle {
     pub filled: bool,
     /// Stroke width.
     pub stroke_width: u32,
+    /// Stroke style
+    pub stroke_style: StrokeStyle
 }
 
 impl ShapeStyle {
@@ -41,6 +43,7 @@ impl ShapeStyle {
             color: self.color.to_rgba(),
             filled: true,
             stroke_width: self.stroke_width,
+            stroke_style: self.stroke_style
         }
     }
 
@@ -72,6 +75,16 @@ impl ShapeStyle {
             color: self.color.to_rgba(),
             filled: self.filled,
             stroke_width: width,
+            stroke_style: self.stroke_style
+        }
+    }
+
+    pub fn stroke_style(&self, style: StrokeStyle) -> Self {
+        Self {
+            color: self.color.to_rgba(),
+            filled: self.filled,
+            stroke_width: self.stroke_width,
+            stroke_style: style
         }
     }
 }
@@ -82,6 +95,7 @@ impl<T: Color> From<T> for ShapeStyle {
             color: f.to_rgba(),
             filled: false,
             stroke_width: 1,
+            stroke_style: StrokeStyle::None
         }
     }
 }
@@ -94,5 +108,9 @@ impl BackendStyle for ShapeStyle {
     /// Returns the stroke width.
     fn stroke_width(&self) -> u32 {
         self.stroke_width
+    }
+    /// Returns the stroke style.
+    fn stroke_style(&self) -> StrokeStyle {
+        self.stroke_style
     }
 }

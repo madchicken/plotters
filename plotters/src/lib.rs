@@ -869,7 +869,7 @@ pub mod prelude {
     pub use crate::style::{
         AsRelative, Color, FontDesc, FontFamily, FontStyle, FontTransform, HSLColor, IntoFont,
         IntoTextStyle, Palette, Palette100, Palette99, Palette9999, PaletteColor, RGBAColor,
-        RGBColor, ShapeStyle, TextStyle,
+        RGBColor, ShapeStyle, TextStyle, StrokeStyle
     };
 
     // Elements

@@ -5,7 +5,7 @@ The SVG image drawing backend
 use plotters_backend::{
     text_anchor::{HPos, VPos},
     BackendColor, BackendCoord, BackendStyle, BackendTextStyle, DrawingBackend, DrawingErrorKind,
-    FontStyle, FontTransform,
+    FontStyle, FontTransform, StrokeStyle
 };
 
 use std::fmt::Write as _;
@@ -178,6 +178,15 @@ impl<'a> SVGBackend<'a> {
 
         ret
     }
+
+    fn make_stroke_style(style: &StrokeStyle, attributes: &mut Vec<(&str, &str)>) {
+        match style {
+            StrokeStyle::Dashed => attributes.push(("stroke-dasharray", "6 2")),
+            StrokeStyle::Dotted => attributes.push(("stroke-dasharray", "2 2")),
+            StrokeStyle::DashDotted => attributes.push(("stroke-dasharray", "6 2 2 6")),
+            _ => {}
+        }
+    }
 }
 
 impl<'a> DrawingBackend for SVGBackend<'a> {
@@ -247,17 +256,28 @@ impl<'a> DrawingBackend for SVGBackend<'a> {
         if style.color().alpha == 0.0 {
             return Ok(());
         }
+        let x1 = format!("{}", from.0);
+        let y1 = format!("{}", from.1);
+        let x2 = format!("{}", to.0);
+        let y2 = format!("{}", to.1);
+        let stroke_width = format!("{}", style.stroke_width());
+        let opacity = make_svg_opacity(style.color());
+        let stroke = make_svg_color(style.color());
+        let mut attributes: Vec<(&str, &str)>= vec![
+            ("opacity", opacity.as_str()),
+            ("stroke", stroke.as_str()),
+            ("stroke-width", stroke_width.as_str()),
+            ("x1", x1.as_str()),
+            ("y1", y1.as_str()),
+            ("x2", x2.as_str()),
+            ("y2", y2.as_str()),
+        ];
+
+        Self::make_stroke_style(&style.stroke_style(), &mut attributes);
+
         self.open_tag(
             SVGTag::Line,
-            &[
-                ("opacity", &make_svg_opacity(style.color())),
-                ("stroke", &make_svg_color(style.color())),
-                ("stroke-width", &format!("{}", style.stroke_width())),
-                ("x1", &format!("{}", from.0)),
-                ("y1", &format!("{}", from.1)),
-                ("x2", &format!("{}", to.0)),
-                ("y2", &format!("{}", to.1)),
-            ],
+            &attributes,
             true,
         );
         Ok(())
@@ -305,21 +325,25 @@ impl<'a> DrawingBackend for SVGBackend<'a> {
         if style.color().alpha == 0.0 {
             return Ok(());
         }
+        let opacity = make_svg_opacity(style.color());
+        let stroke = make_svg_color(style.color());
+        let stroke_width = format!("{}", style.stroke_width());
+        let points = path.into_iter().fold(String::new(), |mut s, (x, y)| {
+            write!(s, "{},{} ", x, y).ok();
+            s
+        });
+        let mut attrs = vec![
+            ("fill", "none"),
+            ("opacity", &opacity),
+            ("stroke", &stroke),
+            ("stroke-width", &stroke_width),
+            ("points", &points),
+        ];
+        Self::make_stroke_style(&style.stroke_style(), &mut attrs);
+
         self.open_tag(
             SVGTag::Polyline,
-            &[
-                ("fill", "none"),
-                ("opacity", &make_svg_opacity(style.color())),
-                ("stroke", &make_svg_color(style.color())),
-                ("stroke-width", &format!("{}", style.stroke_width())),
-                (
-                    "points",
-                    &path.into_iter().fold(String::new(), |mut s, (x, y)| {
-                        write!(s, "{},{} ", x, y).ok();
-                        s
-                    }),
-                ),
-            ],
+            &attrs,
             true,
         );
         Ok(())
@@ -366,17 +390,26 @@ impl<'a> DrawingBackend for SVGBackend<'a> {
         } else {
             ("none".to_string(), make_svg_color(style.color()))
         };
+        let cx = format!("{}", center.0);
+        let cy = format!("{}", center.1);
+        let r = format!("{}", radius);
+        let opacity = make_svg_opacity(style.color());
+        let stroke_width = format!("{}", style.stroke_width());
+        let mut attrs = vec![
+            ("cx", cx.as_str()),
+            ("cy", cy.as_str()),
+            ("r", r.as_str()),
+            ("opacity", opacity.as_str()),
+            ("fill", &fill),
+            ("stroke", &stroke),
+            ("stroke-width", &stroke_width),
+        ];
+
+        Self::make_stroke_style(&style.stroke_style(), &mut attrs);
+
         self.open_tag(
             SVGTag::Circle,
-            &[
-                ("cx", &format!("{}", center.0)),
-                ("cy", &format!("{}", center.1)),
-                ("r", &format!("{}", radius)),
-                ("opacity", &make_svg_opacity(style.color())),
-                ("fill", &fill),
-                ("stroke", &stroke),
-                ("stroke-width", &format!("{}", style.stroke_width())),
-            ],
+            &attrs,
             true,
         );
         Ok(())

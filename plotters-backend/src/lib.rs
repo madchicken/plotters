@@ -67,7 +67,7 @@ pub mod rasterizer;
 mod style;
 mod text;
 
-pub use style::{BackendColor, BackendStyle};
+pub use style::{BackendColor, BackendStyle, StrokeStyle};
 pub use text::{text_anchor, BackendTextStyle, FontFamily, FontStyle, FontTransform};
 
 use text_anchor::{HPos, VPos};
@@ -184,7 +184,7 @@ pub trait DrawingBackend: Sized {
         } else {
             let p: Vec<_> = path.into_iter().collect();
             let v = rasterizer::polygonize(&p[..], style.stroke_width());
-            return self.fill_polygon(v, &style.color());
+            return self.fill_polygon(v, style);
         }
         Ok(())
     }

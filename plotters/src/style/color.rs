@@ -2,6 +2,7 @@ use super::palette::Palette;
 use super::ShapeStyle;
 
 use plotters_backend::{BackendColor, BackendStyle};
+pub use plotters_backend::{StrokeStyle};
 
 use std::marker::PhantomData;
 
@@ -50,6 +51,14 @@ pub trait Color {
         Self: Sized,
     {
         Into::<ShapeStyle>::into(self).stroke_width(width)
+    }
+
+    /// Make a shape style with stroke width from a color
+    fn stroke_style(&self, style: StrokeStyle) -> ShapeStyle
+        where
+            Self: Sized,
+    {
+        Into::<ShapeStyle>::into(self).stroke_style(style)
     }
 }
 

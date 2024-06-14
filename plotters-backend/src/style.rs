@@ -15,6 +15,11 @@ impl BackendColor {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum StrokeStyle {
+    None, Dotted, Dashed, DashDotted
+}
+
 /// The style data for the backend drawing API
 pub trait BackendStyle {
     /// Get the color of current style
@@ -24,6 +29,9 @@ pub trait BackendStyle {
     fn stroke_width(&self) -> u32 {
         1
     }
+
+    /// Get the current stroke style
+    fn stroke_style(&self) -> StrokeStyle { StrokeStyle::None }
 }
 
 impl BackendStyle for BackendColor {

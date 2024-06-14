@@ -11,7 +11,7 @@ mod text;
 
 /// Definitions of palettes of accessibility
 pub use self::palette::*;
-pub use color::{Color, HSLColor, PaletteColor, RGBAColor, RGBColor};
+pub use color::{Color, HSLColor, PaletteColor, RGBAColor, RGBColor, StrokeStyle};
 pub use colors::{BLACK, BLUE, CYAN, GREEN, MAGENTA, RED, TRANSPARENT, WHITE, YELLOW};
 
 #[cfg(feature = "full_palette")]
